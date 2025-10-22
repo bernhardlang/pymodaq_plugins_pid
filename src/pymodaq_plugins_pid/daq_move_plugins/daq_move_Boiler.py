@@ -1,6 +1,6 @@
 from pymodaq.control_modules.move_utility_classes import DAQ_Move_base  # base class
 from pymodaq.daq_move.utility_classes import comon_parameters  # common set of parameters for all actuators
-from pymodaq.daq_utils.daq_utils import ThreadCommand, getLineInfo  # object used to send info back to the main thread
+from pymodaq_utils.daq_utils import ThreadCommand, getLineInfo  # object used to send info back to the main thread
 from easydict import EasyDict as edict  # type of dict
 from pymodaq_plugins_pid.hardware.boiler import BoilerController
 
