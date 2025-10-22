@@ -1,6 +1,7 @@
-from pymodaq.control_modules.move_utility_classes import DAQ_Move_base  # base class
-from pymodaq.daq_move.utility_classes import comon_parameters  # common set of parameters for all actuators
-from pymodaq.daq_utils.daq_utils import ThreadCommand, getLineInfo  # object used to send info back to the main thread
+from pymodaq.control_modules.move_utility_classes import DAQ_Move_base, \
+    comon_parameters
+from pymodaq_utils.utils import ThreadCommand, getLineInfo
+# object used to send info back to the main thread
 from easydict import EasyDict as edict  # type of dict
 from pymodaq_plugins_pid.hardware.beamsteering import BeamSteeringController
 
@@ -27,7 +28,7 @@ class DAQ_Move_BeamSteering(DAQ_Move_base):
                 'limits': ['Master', 'Slave']},
             {'title': 'Axis:', 'name': 'axis', 'type': 'list', 'limits': stage_names},
 
-        ]}] + comon_parameters
+        ]}] + comon_parameters()
 
     def __init__(self, parent=None, params_state=None):
         super().__init__(parent, params_state)
