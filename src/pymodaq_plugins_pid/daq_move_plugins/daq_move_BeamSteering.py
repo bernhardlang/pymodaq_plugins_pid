@@ -1,5 +1,6 @@
+from typing import Union, List, Dict
 from pymodaq.control_modules.move_utility_classes import DAQ_Move_base, \
-    comon_parameters
+    comon_parameters_fun
 from pymodaq_utils.utils import ThreadCommand, getLineInfo
 # object used to send info back to the main thread
 from easydict import EasyDict as edict  # type of dict
@@ -14,21 +15,13 @@ class DAQ_Move_BeamSteering(DAQ_Move_base):
         *params*          dictionnary
         =============== ==============
     """
-    _controller_units = 'whatever'
+    _controller_units = 'millimeter'
     is_multiaxes = True
     stage_names = BeamSteeringController.axis
+    _axis_names: Union[List[str], Dict[str, int]] = ['H', 'V']
     _epsilon = 1
 
-    params = [  # elements to be added in order to control your custom stage
-
-        {'title': 'MultiAxes:', 'name': 'multiaxes', 'type': 'group', 'visible': is_multiaxes, 'children': [
-            {'title': 'is Multiaxes:', 'name': 'ismultiaxes', 'type': 'bool', 'value': is_multiaxes,
-                'default': False},
-            {'title': 'Status:', 'name': 'multi_status', 'type': 'list', 'value': 'Master',
-                'limits': ['Master', 'Slave']},
-            {'title': 'Axis:', 'name': 'axis', 'type': 'list', 'limits': stage_names},
-
-        ]}] + comon_parameters()
+    params = comon_parameters_fun(axis_names=_axis_names)
 
     def __init__(self, parent=None, params_state=None):
         super().__init__(parent, params_state)
@@ -99,17 +92,10 @@ class DAQ_Move_BeamSteering(DAQ_Move_base):
 
             self.status.update(edict(info="", controller=None, initialized=False))
 
-            # check whether this stage is controlled by a multiaxe controller (to be defined for each plugin)
-
-            # if mutliaxes then init the controller here if Master state otherwise use external controller
-            if self.settings.child('multiaxes', 'ismultiaxes').value() and self.settings.child('multiaxes',
-                                                                                               'multi_status').value() == "Slave":
-                if controller is None:
-                    raise Exception('no controller has been defined externally while this axe is a slave one')
-                else:
-                    self.controller = controller
-            else:  # Master stage
-                self.controller = BeamSteeringController()  # any object that will control the stages
+            if self.is_master:
+                self.controller = BeamSteeringController()
+            else:
+                self.controller = controller
 
             info = "Mock PID stage"
             self.status.info = info

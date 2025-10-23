@@ -1,5 +1,5 @@
-
-from pymodaq.pid.utils import PIDModelGeneric, OutputToActuator, InputFromDetector, main
+from pymodaq.extensions.pid.utils import PIDModelGeneric, DataToActuatorPID, main
+from pymodaq_data.data import DataToExport
 
 
 class PIDModelBoiler(PIDModelGeneric):
@@ -49,15 +49,16 @@ class PIDModelBoiler(PIDModelGeneric):
         """
         self.curr_input = measurements['Thermometer']['data0D']['Thermometer_Boiler_CH000']['data']
 
-        return InputFromDetector([self.curr_input])
+        data = [DataCalculated('pid calculated',
+                               data=[np.array([self.curr_input])])]
+        return DataToExport('pid inputs', data=daza)
 
     def convert_output(self, outputs, dt, stab=True):
         """
 
         """
-        out_put_to_actuator = OutputToActuator('abs', values=[outputs[0] / dt])
-
-        return out_put_to_actuator
+        return DataToActuatorPID('pid output', mode='abs',
+                                 data=[outputs[0] / dt])
 
 
 if __name__ == '__main__':

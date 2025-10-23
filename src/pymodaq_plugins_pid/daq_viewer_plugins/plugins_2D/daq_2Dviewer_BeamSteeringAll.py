@@ -1,12 +1,12 @@
 from qtpy.QtCore import QThread
 from qtpy import QtWidgets
 import numpy as np
-import pymodaq_utils.daq_utils as mylib
 from pymodaq.control_modules.viewer_utility_classes import DAQ_Viewer_base, main
 from easydict import EasyDict as edict
 from collections import OrderedDict
-from pymodaq_utils.daq_utils import ThreadCommand, getLineInfo, \
-    DataFromPlugins, Axis, my_moment
+from pymodaq_utils.utils import ThreadCommand, getLineInfo
+from pymodaq_utils.math_utils import my_moment
+from pymodaq.utils.data import DataFromPlugins, Axis
 from pymodaq.control_modules.viewer_utility_classes import comon_parameters
 from pymodaq_plugins_pid.hardware.beamsteering import BeamSteeringController
 from scipy.ndimage.measurements import center_of_mass

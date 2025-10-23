@@ -1,4 +1,7 @@
-from pymodaq.pid.utils import PIDModelGeneric, OutputToActuator, InputFromDetector, main
+import numpy as np
+from pymodaq.extensions.pid.utils import PIDModelGeneric, DataToActuatorPID, main
+from pymodaq_data.data import DataToExport, DataCalculated
+from pymodaq.utils.data import DataActuator
 from scipy.ndimage import center_of_mass
 
 
@@ -45,13 +48,22 @@ class PIDModelBeamSteering(PIDModelGeneric):
 
         """
         #print('input conversion done')
-        key = list(measurements['Camera']['data2D'].keys())[0]  # so it can also be used from another plugin having another key
-        image = measurements['Camera']['data2D'][key]['data']
+#        key = list(measurements['Camera']['data2D'].keys())[0]  # so it can also be used from another plugin having another key
+#        image = measurements['Camera']['data2D'][key]['data']
+        image = measurements[0].data[0]
         image = image - self.settings.child('threshold').value()
         image[image < 0] = 0
         x, y = center_of_mass(image)
         self.curr_input = [y, x]
-        return InputFromDetector([y, x])
+#       return DataToExport('pid inputs',
+#                           data=[DataCalculated('pid calculated',
+#                                                data=[np.array([x]),
+#                                                      np.array([y])])])
+        return DataToExport('pid inputs',
+                            data=[DataCalculated('pid1_calculated',
+                                                 data=[np.array([x])]),
+                                  DataCalculated('pid calculated',
+                                                 data=[np.array([y])])])
 
     def convert_output(self, outputs, dt, stab=True):
         """
@@ -68,7 +80,10 @@ class PIDModelBeamSteering(PIDModelGeneric):
         #print('output converted')
         
         self.curr_output = outputs
-        return OutputToActuator(mode='rel', values=outputs)
+        return DataToActuatorPID('pid output', mode='rel',
+                                 data=[DataActuator(self.actuators_name[ind],
+                                                    data=outputs[ind])
+                                       for ind in range(len(outputs))])
 
 
 if __name__ == '__main__':

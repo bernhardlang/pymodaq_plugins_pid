@@ -1,6 +1,7 @@
-from pymodaq.control_modules.move_utility_classes import DAQ_Move_base  # base class
-from pymodaq.daq_move.utility_classes import comon_parameters  # common set of parameters for all actuators
-from pymodaq_utils.daq_utils import ThreadCommand, getLineInfo  # object used to send info back to the main thread
+from typing import Union, List, Dict
+from pymodaq.control_modules.move_utility_classes import DAQ_Move_base, \
+    comon_parameters_fun
+from pymodaq_utils.utils import ThreadCommand, getLineInfo  # object used to send info back to the main thread
 from easydict import EasyDict as edict  # type of dict
 from pymodaq_plugins_pid.hardware.boiler import BoilerController
 
@@ -16,6 +17,8 @@ class DAQ_Move_Boiler(DAQ_Move_base):
     _controller_units = 'W'
     is_multiaxes = True
     stage_names = ['T']
+    _axis_names: Union[List[str], Dict[str, int]] = ['Axis1', 'Axis2']
+    _epsilon: Union[float, List[float]] = 0.1
 
     params = [
               {'title': 'MultiAxes:', 'name': 'multiaxes', 'type': 'group', 'visible': is_multiaxes, 'children': [
@@ -24,7 +27,8 @@ class DAQ_Move_Boiler(DAQ_Move_base):
                   {'title': 'Status:', 'name': 'multi_status', 'type': 'list', 'value': 'Master',
                    'limits': ['Master', 'Slave']},
                   {'title': 'Axis:', 'name': 'axis', 'type': 'list', 'limits': stage_names},
-              ]}] + comon_parameters
+              ]}] + comon_parameters_fun(is_multiaxes,
+                                         epsilon=_epsilon)
 
     def __init__(self, parent=None, params_state=None):
         super().__init__(parent, params_state)
